@@ -8,15 +8,21 @@ export class CreateUserController {
     const { name, email, password } = request.body
 
     try {
-      this.createUserService.execute({
+      await this.createUserService.execute({
         name,
         email,
         password,
       })
 
-      return response.status(201).json({ message: "User created" })
+      return response.status(201).json({
+        message: "User created",
+        name,
+        email,
+      })
     } catch (error) {
-      return response.status(400).json({ message: error.message || "Unexpected Error." })
+      return response.status(400).json({
+        message: error.message || "Something went wrong!",
+      })
     }
   }
 }

@@ -20,6 +20,6 @@ All those principles are well commented into the code files.
 
 ## Built with :metal:
 
-- **Node.js** | **Express.js** | **Typescript**
+- **Node.js** | **Express.js** | **TypeORM** | **Typescript**
 
 Happy Coding! :+1:

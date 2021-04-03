@@ -1,32 +1,22 @@
-import { IUsersRepository } from "../../repositories/interfaces/IUsersRepository"
-import { ICreateUserRequestDTO } from "./ICreateUserRequestDTO"
+import { getCustomRepository } from "typeorm"
 import { User } from "../../entities/User"
-import { IMailProvider } from "../../providers/interfaces/IMailProvider"
-
-// Single Responsbility principle
-// CreateUserService has only 1 unique responsibility, wich is Create a User.
-// Less than 30 lines of code. Clean. Simple. Effective.
+import { IMailProvider } from "../../providers/IMailProvider"
+import { UsersRepository } from "../../repositories/user/UsersRepository"
+import { ICreateUserRequestDTO } from "./CreateUserDTO"
 
 export class CreateUserService {
-  // Dependency Inversion
-  // Decoupling our Repository we don't leave it Stuck in our Create User Service.
-  // So it is a free module that we can use in all our software.
-  private usersRepository: IUsersRepository
-
   private mailProvider: IMailProvider
 
-  // Here in the constructor, we add a User Repository that can be easily switched if needed.
-  // Instead of attaching a fixed Repository.
-  constructor(usersRepository: IUsersRepository, mailProvider: IMailProvider) {
-    this.usersRepository = usersRepository
+  constructor(mailProvider: IMailProvider) {
     this.mailProvider = mailProvider
   }
 
   async execute(data: ICreateUserRequestDTO) {
-    //  Liskov Substitution
-    //  Our code must run the same way, even if the repository has changed.
-    //  As long it is implements the UsersRepository Interface, its ok.
-    const userAlreadyExists = await this.usersRepository.findByEmail(data.email)
+    const usersRepository = getCustomRepository(UsersRepository)
+
+    const userAlreadyExists = await usersRepository.findOne({
+      email: data.email,
+    })
 
     if (userAlreadyExists) {
       throw new Error("User already exists.")
@@ -34,21 +24,19 @@ export class CreateUserService {
 
     const newUser = new User(data)
 
-    // We don't need to directly save the user.
-    // Our User Repository will take that job ;)
-    await this.usersRepository.save(newUser)
+    await usersRepository.save(newUser)
 
     await this.mailProvider.sendMail({
       to: {
-        name: data.name,
         email: data.email,
+        name: data.name,
       },
       from: {
-        name: "Me",
-        email: "me@app.com",
+        email: "email@test.com",
+        name: "solid-api",
       },
-      subject: "Welcome to my App",
-      body: "<p> Hello from my APp ;) </p>",
+      body: "<p>You have been registered! </p>",
+      subject: "User created",
     })
   }
 }
