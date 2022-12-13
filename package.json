@@ -13,7 +13,7 @@
     "typeorm": "ts-node-dev node_modules/typeorm/cli.js"
   },
   "dependencies": {
-    "express": "^4.17.1",
+    "express": "^4.17.3",
     "nodemailer": "^6.5.0",
     "reflect-metadata": "^0.1.13",
     "sqlite3": "^5.0.2",
